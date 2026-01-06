@@ -14,25 +14,51 @@ async function withdraw() {
     //verifica se a conta existe
     if (!checkAccount(accountName)) {
       return withdraw();
-    }
+    }    
     const { amount } = await inquirer.prompt([
       {
         name: "amount",
         message: "Quanto você deseja sacar?",
+        validate: (amount) => {
+        return checkPositiveNumber(amount) || "Por favor, insira um valor numérico positivo.";
+      },
       },
     ]);
+
     const accountData = getAccount(accountName);
-    if (amount > accountData.balance) {
-      console.log(chalk.bgRed.black("\nSaldo insuficiente!\n"));
-      return withdraw();
+    const amountNumber = parseFloat(amount);
+    if (amountNumber > accountData.balance) {
+
+      const { option } = await inquirer.prompt([
+          {
+            type: "list",
+            name: "option",
+            message: chalk.bgRed.black(
+              "\n\nVocê não tem saldo suficiente\n") + ("\nEscolha uma operação a seguir: \n"),
+            choices: [
+              "Quero sacar outro valor", 
+              "Quero consultar meu saldo",
+              "Quero encerrar processo",
+            ],
+          },
+        ]);
+        if (option === "Quero sacar outro valor") {
+           return withdraw();
+        }
+        else if (option === "Quero encerrar processo") {
+         return cancelOperation();
+        } else if (option === "Quero consultar meu saldo") {
+        return getAccountBalance();
+        }
     }
-    accountData.balance = parseFloat(accountData.balance) - parseFloat(amount);
+    accountData.balance -= amountNumber;
+
     fs.writeFileSync(
       `accounts/${accountName}.json`,
       JSON.stringify(accountData, null, 2)
     );
     console.log(
-      chalk.green(`\nFoi sacado o valor de R$${amount} da sua conta!\n`)
+      chalk.green(`\nFoi sacado o valor de R$${amountNumber} da sua conta!\n`)
     );
   } catch (err) {
     console.log(chalk.bgRed.black("Erro ao sacar:"), err);
@@ -80,22 +106,37 @@ async function deposit() {
         name: "amount",
         message: "Quanto você deseja depositar?",
         validate: (value) => {
-          const valid = !isNaN(parseFloat(value)) && parseFloat(value) > 0;
-          if (!valid) {
-            console.log(
+    if (!checkPositiveNumber(value)) {
+       console.log(
               chalk.bgRed.black(
                 "\nValor inválido! Digite um número positivo.\n"
               )
             );
-            deposit();
-          } //else
-          //return valid || "Por favor, insira um valor numérico positivo.";
-        },
+        return false;
+    } else {
+      return true;
+    }
+  },
       },
     ]);
+      
+          // const valid = isNaN(parseFloat(value)) || parseFloat(value) <= 0;
+          // if (!valid) {
+          //   console.log(
+          //     chalk.bgRed.black(
+          //       "\nValor inválido! Digite um número positivo.\n"
+          //     )
+          //   );
+    //  return true;        
+    // } else{
+    //       return valid || "Por favor, insira um valor numérico positivo.";
+    //     },
+    //   },
+    // ]);
 
-    //pegar o valor atual da conta
-    addAmount(accountName, amount);
+    //pegar o valor atual da conta e convertendo para número
+    const amountNumber = parseFloat(amount);
+    addAmount(accountName, amountNumber);
   } catch (err) {
     console.log(chalk.bgRed.black("Erro ao depositar:"), err);
   }
@@ -120,7 +161,6 @@ async function buildAccount() {
       );
       return;
     }
-
     // criando arquivo da conta
     fs.writeFileSync(
       `accounts/${accountName}.json`,
@@ -206,4 +246,15 @@ function getAccount(accountName) {
   });
   return JSON.parse(accountJSON);
 }
+
+function checkPositiveNumber(value) {
+  const number = parseFloat(value);
+  return !isNaN(number) && number > 0;
+}
+
+function cancelOperation(option) {
+  console.log(chalk.bgBlue.black("\n\nOperação cancelada pelo usuário."));
+  process.exit();
+}
+
 operation();
