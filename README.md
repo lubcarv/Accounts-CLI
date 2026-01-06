@@ -1,39 +1,47 @@
+# Accounts CLI
+
+Projeto que simula um aplicativo bancário simples pelo terminal, permitindo criar contas, consultar saldo, fazer depósitos e saques.
+
+## Pré-requisitos
+
+- Node.js v22.21.1
+
 ## Dependências e versões utilizadas
 
-Este projeto utiliza as seguintes dependências principais:
+- chalk 4.0.0
+- inquirer 8.2.6
 
-- [Node.js](https://nodejs.org/) **v22.21.1**
-- [chalk](https://www.npmjs.com/package/chalk) **4.0.0**
-- [inquirer](https://www.npmjs.com/package/inquirer) **8.2.6**
+*(Veja orientações de instalação abaixo.)*
 
-### Instalação
+## Instalação
 
-Para instalar as dependências exatamente nas versões utilizadas neste projeto, execute no terminal:
+No terminal, execute:
 
 ```bash
 npm install chalk@4 inquirer@8.2.6
 ```
-
-Ou use apenas:
-
+ou, se já tiver `package.json`:
 ```bash
 npm install
 ```
-(caso o arquivo `package.json` já esteja corretamente configurado)
 
----
+## Como executar
 
-### Verificando as versões
-
-Você pode conferir as versões instaladas ao olhar os arquivos `package.json` e `package-lock.json`.
-
-```json
-// Exemplo de trecho do package.json:
-"dependencies": {
-  "chalk": "^4.0.0",
-  "inquirer": "^8.2.6"
-}
+```bash
+node index.js
 ```
+
+## Funcionalidades
+
+- Criar conta
+- Consultar saldo
+- Depositar
+- Sacar
+- Sair
+
+## Licença
+
+MIT
 
 ---
 
